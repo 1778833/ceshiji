@@ -280,21 +280,52 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 导出数据
     exportBtn.addEventListener('click', () => {
-        // 实际应用中会收集所有需要备份的数据
+        // 收集所有需要备份的数据
         const dataToExport = {
+            version: "2.0", // 增加版本号以便将来处理迁移
+            timestamp: new Date().toISOString(),
+            // 基础/系统设置
             theme: localStorage.getItem('fruit-machine-theme'),
-            apiConfig: JSON.parse(localStorage.getItem('fruit-machine-api-config')),
-            apiPresets: JSON.parse(localStorage.getItem('fruit-machine-api-presets')), // 包含预设
-            // ... 其他应用数据
+            apiConfig: JSON.parse(localStorage.getItem('fruit-machine-api-config') || '{}'),
+            apiPresets: JSON.parse(localStorage.getItem('fruit-machine-api-presets') || '{}'),
+            userPresets: JSON.parse(localStorage.getItem('fruit-machine-user-presets') || '[]'),
+            currentPresetId: localStorage.getItem('fruit-machine-current-preset-id'),
+            layout: JSON.parse(localStorage.getItem('fruit-machine-layout') || '{}'),
+
+            // 美化/外观
+            background: localStorage.getItem('fruit-machine-background'),
+            customCss: localStorage.getItem('fruit-machine-custom-css'),
+            customFont: localStorage.getItem('fruit-machine-custom-font'),
+            icons: JSON.parse(localStorage.getItem('fruit-machine-icons') || '{}'),
+            iconSizes: JSON.parse(localStorage.getItem('fruit-machine-icon-sizes') || '{}'),
+            photos: JSON.parse(localStorage.getItem('fruit-machine-photos') || '{}'),
+            beautifyPresets: JSON.parse(localStorage.getItem('fruit-machine-beautify-presets') || '{}'),
+
+            // 内容/数据
+            regexRules: JSON.parse(localStorage.getItem('fruit_machine_regex_rules') || '[]'),
+            wbCategories: JSON.parse(localStorage.getItem('fruit-machine-wb-categories') || '[]'),
+            wbEntries: JSON.parse(localStorage.getItem('fruit-machine-wb-entries') || '[]'),
+            contacts: JSON.parse(localStorage.getItem('fruit-machine-contacts') || '[]'),
+            apps: JSON.parse(localStorage.getItem('fruit-machine-apps') || '{}'),
+            notepad: localStorage.getItem('fruit-machine-notepad'),
+
+            // 兼容性/旧版数据 (可选，为了完整性)
+            legacy: {
+                apiAddress: localStorage.getItem('api-address'),
+                apiKey: localStorage.getItem('api-key'),
+                apiModel: localStorage.getItem('api-model'),
+                apiTemperature: localStorage.getItem('api-temperature')
+            }
         };
+
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataToExport, null, 2));
         const downloadAnchorNode = document.createElement('a');
         downloadAnchorNode.setAttribute("href", dataStr);
-        downloadAnchorNode.setAttribute("download", "fruit-machine-backup.json");
+        downloadAnchorNode.setAttribute("download", "fruit-machine-full-backup.json");
         document.body.appendChild(downloadAnchorNode);
         downloadAnchorNode.click();
         downloadAnchorNode.remove();
-        alert('存档已导出！');
+        alert('完整存档已导出！包含所有设置、世界书、正则、联系人及美化数据。');
     });
 
     // 导入数据 (通过文件选择)
@@ -311,25 +342,66 @@ document.addEventListener('DOMContentLoaded', () => {
                     const content = readerEvent.target.result;
                     const importedData = JSON.parse(content);
                     
+                    if (!confirm('导入存档将覆盖当前所有数据（包括设置、聊天、世界书等），确定要继续吗？')) {
+                        return;
+                    }
+
+                    // 辅助函数：安全地设置 localStorage，如果值为 null/undefined 则不设置
+                    const safeSet = (key, value, isObject = false) => {
+                        if (value !== undefined && value !== null) {
+                            localStorage.setItem(key, isObject ? JSON.stringify(value) : value);
+                        }
+                    };
+
                     // 恢复数据
-                    if(importedData.theme) {
-                         localStorage.setItem('fruit-machine-theme', importedData.theme);
+                    // 1. 基础/系统设置
+                    safeSet('fruit-machine-theme', importedData.theme);
+                    safeSet('fruit-machine-api-config', importedData.apiConfig, true);
+                    safeSet('fruit-machine-api-presets', importedData.apiPresets, true);
+                    safeSet('fruit-machine-user-presets', importedData.userPresets, true);
+                    safeSet('fruit-machine-current-preset-id', importedData.currentPresetId);
+                    safeSet('fruit-machine-layout', importedData.layout, true);
+
+                    // 2. 美化/外观
+                    safeSet('fruit-machine-background', importedData.background);
+                    safeSet('fruit-machine-custom-css', importedData.customCss);
+                    safeSet('fruit-machine-custom-font', importedData.customFont);
+                    safeSet('fruit-machine-icons', importedData.icons, true);
+                    safeSet('fruit-machine-icon-sizes', importedData.iconSizes, true);
+                    safeSet('fruit-machine-photos', importedData.photos, true);
+                    safeSet('fruit-machine-beautify-presets', importedData.beautifyPresets, true);
+
+                    // 3. 内容/数据
+                    safeSet('fruit_machine_regex_rules', importedData.regexRules, true);
+                    safeSet('fruit-machine-wb-categories', importedData.wbCategories, true);
+                    safeSet('fruit-machine-wb-entries', importedData.wbEntries, true);
+                    safeSet('fruit-machine-contacts', importedData.contacts, true);
+                    safeSet('fruit-machine-apps', importedData.apps, true);
+                    safeSet('fruit-machine-notepad', importedData.notepad);
+
+                    // 4. 兼容性处理
+                    // 如果导入了 apiConfig，同步更新旧版 key 以保持兼容性
+                    if (importedData.apiConfig) {
+                        safeSet('api-address', importedData.apiConfig.address);
+                        safeSet('api-key', importedData.apiConfig.key);
+                        safeSet('api-model', importedData.apiConfig.model);
+                        safeSet('api-temperature', importedData.apiConfig.temperature);
+                    } else if (importedData.legacy) {
+                        // 如果没有新版 config 但有旧版数据，尝试恢复旧版数据
+                        safeSet('api-address', importedData.legacy.apiAddress);
+                        safeSet('api-key', importedData.legacy.apiKey);
+                        safeSet('api-model', importedData.legacy.apiModel);
+                        safeSet('api-temperature', importedData.legacy.apiTemperature);
                     }
-                    if(importedData.apiConfig) {
-                         localStorage.setItem('fruit-machine-api-config', JSON.stringify(importedData.apiConfig));
-                    }
-                    if(importedData.apiPresets) {
-                        localStorage.setItem('fruit-machine-api-presets', JSON.stringify(importedData.apiPresets));
-                    }
-                    
-                    alert('存档导入成功！请刷新页面以应用更改。');
-                    loadAndApplyTheme();
-                    loadApiSettings();
-                    updatePresetsList();
+
+                    alert('完整存档导入成功！页面即将刷新以应用所有更改。');
+                    setTimeout(() => {
+                        location.reload(); // 强制刷新以应用所有更改
+                    }, 1000);
 
                 } catch (error) {
                     alert('导入失败，请检查文件格式是否正确。');
-                    console.error(error);
+                    console.error('Import error:', error);
                 }
             }
         }
