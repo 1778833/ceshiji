@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>用户设定</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .settings-page { background-color: #fff; min-height: 100%; }
+        .preset-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        .preset-item { background: #f9f9f9; padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #eee; cursor: pointer; }
+        .preset-info h3 { font-size: 16px; margin-bottom: 5px; color: #333; }
+        .preset-info p { font-size: 12px; color: #666; margin: 0; }
+        .preset-actions button { background: none; border: none; font-size: 18px; cursor: pointer; padding: 5px; color: #888; }
+        .add-preset-btn { background: #ff8787; color: white; border: none; width: 100%; padding: 12px; border-radius: 10px; font-size: 16px; margin-bottom: 20px; cursor: pointer; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: white; width: 90%; max-width: 400px; max-height: 80vh; border-radius: 15px; padding: 20px; overflow-y: auto; position: relative; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-size: 14px; color: #555; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; }
+        .relationship-list { margin-top: 10px; border-top: 1px dashed #eee; padding-top: 10px; }
+        .relation-item { background: #f5f5f5; padding: 10px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; display: flex; justify-content: space-between; }
+        .ai-gen-section { background: #e3f2fd; padding: 15px; border-radius: 10px; margin-top: 15px; }
+        .ai-gen-btn { background: #2196f3; color: white; border: none; padding: 8px 15px; border-radius: 20px; font-size: 12px; cursor: pointer; }
+        #debug-info { font-size: 10px; color: red; background: #ffe; padding: 5px; margin-bottom: 10px; border: 1px solid red; display: none; }
+    </style>
+</head>
+<body data-theme="strawberry">
+
+    <div id="phone-case">
+        <div id="screen">
+            <div class="settings-page">
+                <div class="settings-header">
+                    <a href="chat.html" class="back-button">‹</a>
+                    <h1>用户设定</h1>
+                </div>
+                
+                <div id="debug-info"></div>
+
+                <div class="settings-section">
+                    <p>管理你的不同身份预设。</p>
+                    <button class="add-preset-btn" id="btn-add-preset">+ 新建用户预设</button>
+                    <div class="preset-list" id="preset-list-container"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑预设模态框 -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">编辑预设</h2>
+                <button id="close-modal-btn" style="border:none;background:none;font-size:20px;">✖</button>
+            </div>
+            
+            <form id="preset-form">
+                <input type="hidden" id="edit-preset-id">
+
+                <!-- 头像上传区域 -->
+                <div style="display: flex; justify-content: center; margin-bottom: 20px;">
+                    <div class="avatar-upload-container" id="avatar-container" style="position: relative; width: 80px; height: 80px; border-radius: 50%; background: #eee; overflow: hidden; cursor: pointer; border: 2px dashed #ccc;">
+                        <img id="preset-avatar-preview" src="" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                        <div id="avatar-placeholder" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; flex-direction: column; color: #999; font-size: 10px;">
+                            <span style="font-size: 20px;">📷</span>
+                            <span>换头像</span>
+                        </div>
+                    </div>
+                    <input type="file" id="avatar-input" accept="image/*" style="display: none;">
+                </div>
+                
+                <div class="form-group">
+                    <label>预设名称 (仅用于区分)</label>
+                    <input type="text" id="preset-name" required placeholder="例如：我的主设定">
+                </div>
+
+                <div class="form-group">
+                    <label>姓名</label>
+                    <input type="text" id="user-name" required>
+                </div>
+
+                <div style="display: flex; gap: 10px;">
+                    <div class="form-group" style="flex:1">
+                        <label>性别</label>
+                        <select id="user-gender">
+                            <option value="女">女</option><option value="男">男</option><option value="保密">保密</option><option value="其他">其他</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="flex:1">
+                        <label>年龄</label>
+                        <input type="text" id="user-age">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>生日</label>
+                    <input type="date" id="user-birthday">
+                </div>
+
+                <div class="form-group">
+                    <label>主要设定</label>
+                    <textarea id="user-description" placeholder="详细描述..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>所居世界 (世界观背景)</label>
+                    <textarea id="user-world" placeholder="此预设的世界观..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>人际关系</label>
+                    <div class="relationship-list" id="relationship-list"></div>
+                    <button type="button" class="settings-button" id="btn-add-rel" style="margin-top:5px; font-size:12px; padding:8px;">+ 手动添加关系</button>
+                </div>
+
+                <div class="ai-gen-section">
+                    <label style="font-weight:bold; font-size:13px; margin-bottom:5px; display:block;">AI 生成人际关系</label>
+                    <textarea id="ai-gen-prompt" placeholder="描述关系要求..." style="height:60px; font-size:12px; margin-bottom:5px;"></textarea>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <select id="ai-gen-count" style="width: 80px;">
+                            <option value="1">1人</option><option value="2">2人</option><option value="3">3人</option>
+                        </select>
+                        <button type="button" class="ai-gen-btn" id="btn-ai-gen">✨ AI 生成</button>
+                    </div>
+                    <div id="ai-loading" style="display:none; color:#666; font-size:12px; margin-top:5px;">正在生成中...</div>
+                </div>
+
+                <div style="margin-top: 20px; display: flex; gap: 10px;">
+                    <button type="submit" class="settings-button">保存</button>
+                    <button type="button" class="settings-button" id="btn-cancel" style="background-color: #ccc;">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 内联 JS 确保执行 -->
+    <script>
+        window.onerror = function(msg, url, line) {
+            const d = document.getElementById('debug-info');
+            if(d) { d.style.display = 'block'; d.innerHTML += `Error: ${msg} line ${line}<br>`; }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("User Settings Script Loaded (Inline)");
+            
+            // 数据加载
+            let presets = [];
+            try {
+                presets = JSON.parse(localStorage.getItem('fruit-machine-user-presets')) || [];
+            } catch(e) { console.error(e); }
+
+            if (presets.length === 0) {
+                presets.push({ id: Date.now().toString(), name: "默认预设", userName: "小莓", gender: "女", age: "18", birthday: "2000-01-01", description: "默认", world: "现代", relationships: [] });
+                localStorage.setItem('fruit-machine-user-presets', JSON.stringify(presets));
+            }
+
+            // DOM
+            const listContainer = document.getElementById('preset-list-container');
+            const modal = document.getElementById('edit-modal');
+            const form = document.getElementById('preset-form');
+            const avatarInput = document.getElementById('avatar-input');
+            const avatarPreview = document.getElementById('preset-avatar-preview');
+            const avatarPlaceholder = document.getElementById('avatar-placeholder');
+            const relList = document.getElementById('relationship-list');
+            let currentAvatarBase64 = null;
+
+            // 渲染
+            function render() {
+                listContainer.innerHTML = '';
+                presets.forEach(p => {
+                    const el = document.createElement('div');
+                    el.className = 'preset-item';
+                    el.innerHTML = `
+                        <div class="preset-info" style="flex:1;">
+                            <h3>${p.name}</h3>
+                            <p>${p.gender} / ${p.age}岁 / ${p.userName}</p>
+                        </div>
+                        <div class="preset-actions">
+                            <button class="edit-btn" data-id="${p.id}">✎</button>
+                            <button class="del-btn" data-id="${p.id}" style="color:#ff3b30;">✖</button>
+                        </div>
+                    `;
+                    el.querySelector('.preset-info').addEventListener('click', () => openModal(p.id));
+                    el.querySelector('.edit-btn').addEventListener('click', (e) => { e.stopPropagation(); openModal(p.id); });
+                    el.querySelector('.del-btn').addEventListener('click', (e) => { e.stopPropagation(); deletePreset(p.id); });
+                    listContainer.appendChild(el);
+                });
+            }
+
+            // 删除
+            function deletePreset(id) {
+                if(presets.length <= 1) return alert("至少保留一个预设");
+                if(confirm("确定删除?")) {
+                    presets = presets.filter(p => p.id !== id);
+                    save();
+                    render();
+                }
+            }
+
+            // 打开模态框
+            function openModal(id = null) {
+                modal.style.display = 'flex';
+                relList.innerHTML = '';
+                
+                if(id) {
+                    const p = presets.find(x => x.id === id);
+                    if(!p) return;
+                    document.getElementById('edit-preset-id').value = p.id;
+                    document.getElementById('preset-name').value = p.name;
+                    document.getElementById('user-name').value = p.userName;
+                    document.getElementById('user-gender').value = p.gender;
+                    document.getElementById('user-age').value = p.age;
+                    document.getElementById('user-birthday').value = p.birthday;
+                    document.getElementById('user-description').value = p.description;
+                    document.getElementById('user-world').value = p.world || '';
+                    
+                    currentAvatarBase64 = p.avatar || null;
+                    updateAvatarView();
+                    
+                    if(p.relationships) p.relationships.forEach(r => addRelItem(r));
+                } else {
+                    form.reset();
+                    document.getElementById('edit-preset-id').value = '';
+                    currentAvatarBase64 = null;
+                    updateAvatarView();
+                    addRelItem();
+                }
+            }
+
+            // 头像相关
+            function updateAvatarView() {
+                if(currentAvatarBase64) {
+                    avatarPreview.src = currentAvatarBase64;
+                    avatarPreview.style.display = 'block';
+                    avatarPlaceholder.style.display = 'none';
+                } else {
+                    avatarPreview.style.display = 'none';
+                    avatarPlaceholder.style.display = 'flex';
+                }
+            }
+
+            document.getElementById('avatar-container').addEventListener('click', () => avatarInput.click());
+            avatarInput.addEventListener('change', (e) => {
+                if(e.target.files[0]) {
+                    const r = new FileReader();
+                    r.onload = (evt) => { currentAvatarBase64 = evt.target.result; updateAvatarView(); };
+                    r.readAsDataURL(e.target.files[0]);
+                }
+            });
+
+            // 关系相关
+            document.getElementById('btn-add-rel').addEventListener('click', () => addRelItem());
+            function addRelItem(data = null) {
+                const div = document.createElement('div');
+                div.className = 'relation-item';
+                div.innerHTML = `
+                    <div style="flex:1; margin-right:5px;">
+                        <input type="text" placeholder="姓名" class="rel-name" value="${data ? data.name : ''}" style="width:100%; margin-bottom:5px;">
+                        <input type="text" placeholder="关系" class="rel-type" value="${data ? data.relationship : ''}" style="width:100%;">
+                        <label style="font-size:10px; color:#666; display:flex; align-items:center; margin-top:2px;">
+                            <input type="checkbox" class="sync-contact" style="width:auto; margin-right:4px;"> 加入通讯录
+                        </label>
+                    </div>
+                    <div style="flex:1.5; margin-right:5px;">
+                        <textarea placeholder="描述..." class="rel-desc" style="width:100%; height:60px; font-size:12px;">${data ? data.description : ''}</textarea>
+                    </div>
+                    <button type="button" class="del-btn" style="border:none; background:none; color:#999;">✖</button>
+                `;
+                div.querySelector('.del-btn').addEventListener('click', () => div.remove());
+                relList.appendChild(div);
+            }
+
+            // AI生成
+            document.getElementById('btn-ai-gen').addEventListener('click', async () => {
+                const prompt = document.getElementById('ai-gen-prompt').value;
+                const count = document.getElementById('ai-gen-count').value;
+                if(!prompt) return alert("请输入要求");
+                
+                let api = localStorage.getItem('api-address');
+                let key = localStorage.getItem('api-key');
+                let model = localStorage.getItem('api-model');
+                try {
+                    const cfg = JSON.parse(localStorage.getItem('fruit-machine-api-config'));
+                    if(cfg) { api = cfg.address; key = cfg.key; model = cfg.model; }
+                } catch(e){}
+
+                if(!api || !key) return alert("请先配置API");
+                
+                document.getElementById('ai-loading').style.display = 'block';
+                try {
+                    api = api.replace(/\/+$/, '');
+                    const url = api.endsWith('/v1') ? api + '/chat/completions' : api + '/v1/chat/completions';
+                    const res = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer '+key },
+                        body: JSON.stringify({
+                            model: model,
+                            messages: [
+                                { role: 'system', content: '返回JSON数组: [{"name":"名","relationship":"关系","description":"描述"}]' },
+                                { role: 'user', content: `生成${count}个: ${prompt}` }
+                            ]
+                        })
+                    });
+                    const d = await res.json();
+                    const json = JSON.parse(d.choices[0].message.content.replace(/```json/g, '').replace(/```/g, ''));
+                    json.forEach(r => addRelItem(r));
+                } catch(e) { alert("出错: "+e.message); }
+                finally { document.getElementById('ai-loading').style.display = 'none'; }
+            });
+
+            // 保存
+            function save() {
+                localStorage.setItem('fruit-machine-user-presets', JSON.stringify(presets));
+            }
+
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const id = document.getElementById('edit-preset-id').value;
+                const name = document.getElementById('preset-name').value;
+                
+                // 收集关系 & 同步
+                const rels = [];
+                let contacts = JSON.parse(localStorage.getItem('fruit-machine-contacts')) || [];
+                let contactsChanged = false;
+
+                document.querySelectorAll('.relation-item').forEach(el => {
+                    const rName = el.querySelector('.rel-name').value;
+                    const rType = el.querySelector('.rel-type').value;
+                    const rDesc = el.querySelector('.rel-desc').value;
+                    const sync = el.querySelector('.sync-contact').checked;
+                    
+                    if(rName && rType) {
+                        rels.push({ name: rName, relationship: rType, description: rDesc });
+                        if(sync) {
+                            contacts.push({ 
+                                id: Date.now()+Math.random(), 
+                                name: rName, 
+                                remark: rType, 
+                                persona: rDesc, 
+                                group: 'other' 
+                            });
+                            contactsChanged = true;
+                        }
+                    }
+                });
+
+                if(contactsChanged) {
+                    localStorage.setItem('fruit-machine-contacts', JSON.stringify(contacts));
+                    alert("已同步到通讯录");
+                }
+
+                const data = {
+                    id: id || Date.now().toString(),
+                    name: name,
+                    userName: document.getElementById('user-name').value,
+                    gender: document.getElementById('user-gender').value,
+                    age: document.getElementById('user-age').value,
+                    birthday: document.getElementById('user-birthday').value,
+                    description: document.getElementById('user-description').value,
+                    world: document.getElementById('user-world').value,
+                    avatar: currentAvatarBase64,
+                    relationships: rels
+                };
+
+                if(id) {
+                    const idx = presets.findIndex(x => x.id === id);
+                    if(idx !== -1) presets[idx] = data;
+                } else {
+                    presets.push(data);
+                }
+
+                save();
+                render();
+                modal.style.display = 'none';
+                alert("保存成功");
+            });
+
+            // 按钮
+            document.getElementById('btn-add-preset').addEventListener('click', () => openModal());
+            document.getElementById('btn-cancel').addEventListener('click', () => modal.style.display = 'none');
+            document.getElementById('close-modal-btn').addEventListener('click', () => modal.style.display = 'none');
+
+            render();
+        });
+    </script>
+</body>
+</html>

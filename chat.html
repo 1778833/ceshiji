@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>莓莓聊天</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* 聊天专属样式覆盖 */
+        #screen {
+            background-color: #fff0f5; /* 浅粉色背景 */
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 顶部导航栏 */
+        .chat-header {
+            height: 60px;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            z-index: 100;
+        }
+
+        .user-avatar-container {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid #ffb7b2;
+            cursor: pointer;
+        }
+        
+        .user-avatar-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .chat-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #5d3a3a;
+        }
+
+        .header-actions {
+            width: 40px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        /* 聊天主区域布局 */
+        .chat-layout {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* 侧边栏/底部栏切换区域 */
+        .chat-tabs {
+            height: 50px;
+            background: #fff;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid #eee;
+        }
+
+        .chat-tab-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 10px;
+            color: #999;
+            cursor: pointer;
+        }
+
+        .chat-tab-item.active {
+            color: #ff8787;
+        }
+
+        .chat-tab-icon {
+            width: 24px;
+            height: 24px;
+            margin-bottom: 2px;
+            background-color: #eee; /* 占位 */
+            border-radius: 5px;
+        }
+
+        /* 内容显示区域 */
+        .chat-content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+            position: relative;
+        }
+
+        /* 消息列表样式 */
+        .message-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message-item {
+            display: flex;
+            gap: 10px;
+            padding: 10px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            cursor: pointer;
+        }
+
+        .msg-avatar {
+            width: 45px;
+            height: 45px;
+            background: #ddd;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+
+        .msg-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .msg-info {
+            flex: 1;
+        }
+
+        .msg-name {
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .msg-preview {
+            font-size: 12px;
+            color: #888;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* 联系人列表样式 */
+        .contact-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .contact-group-title {
+            font-size: 12px;
+            color: #888;
+            margin: 10px 5px 5px;
+            font-weight: bold;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #fff;
+            border-radius: 12px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+        }
+
+        .contact-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #eee;
+            overflow: hidden;
+        }
+        
+        .contact-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .contact-info {
+            flex: 1;
+        }
+
+        .contact-name {
+            font-size: 15px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 2px;
+        }
+
+        .contact-remark {
+            font-size: 11px;
+            color: #999;
+        }
+
+        /* 隐藏/显示控制 */
+        .hidden {
+            display: none !important;
+        }
+        
+        /* 顶部右侧按钮 */
+        .header-btn {
+            text-decoration: none;
+            color: #555;
+            font-size: 20px;
+            padding: 5px;
+        }
+
+    </style>
+</head>
+<body data-theme="strawberry">
+
+    <div id="phone-case">
+        <div id="screen">
+            
+            <!-- 顶部栏 -->
+            <div class="chat-header">
+                <!-- 左上角头像 (点击编辑用户设定) -->
+                <a href="user_settings.html" class="user-avatar-container" id="current-user-avatar">
+                    <img src="https://via.placeholder.com/40" alt="User">
+                </a>
+                
+                <div class="chat-title">消息</div>
+                
+                <div class="header-actions" id="header-actions">
+                    <!-- 默认显示退出 -->
+                     <a href="index.html" class="header-btn" id="btn-exit">✖</a>
+                     <!-- 联系人页面显示添加 -->
+                     <a href="contact_edit.html" class="header-btn hidden" id="btn-add-contact" style="color: #ff8787; font-weight: bold;">+</a>
+                </div>
+            </div>
+
+            <!-- 主内容区 (四个标签页切换显示) -->
+            <div class="chat-content-area" id="tab-content-messages">
+                <!-- 消息列表 -->
+                <div class="message-list">
+                    <div class="message-item">
+                        <div class="msg-avatar"></div>
+                        <div class="msg-info">
+                            <div class="msg-name">系统通知</div>
+                            <div class="msg-preview">欢迎来到莓莓聊天！</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-content-area hidden" id="tab-content-channels">
+                <div style="text-align: center; color: #999; margin-top: 50px;">
+                    频道功能开发中...
+                </div>
+            </div>
+
+            <div class="chat-content-area hidden" id="tab-content-contacts">
+                <div class="contact-list" id="contact-list-container">
+                    <!-- JS populated -->
+                </div>
+            </div>
+
+            <div class="chat-content-area hidden" id="tab-content-moments">
+                <div style="text-align: center; color: #999; margin-top: 50px;">
+                    动态功能开发中...
+                </div>
+            </div>
+
+            <!-- 底部标签栏 -->
+            <div class="chat-tabs">
+                <div class="chat-tab-item active" data-target="messages">
+                    <div class="chat-tab-icon" style="background: #ffb7b2;"></div>
+                    <span>消息</span>
+                </div>
+                <div class="chat-tab-item" data-target="channels">
+                    <div class="chat-tab-icon"></div>
+                    <span>频道</span>
+                </div>
+                <div class="chat-tab-item" data-target="contacts">
+                    <div class="chat-tab-icon"></div>
+                    <span>联系人</span>
+                </div>
+                <div class="chat-tab-item" data-target="moments">
+                    <div class="chat-tab-icon"></div>
+                    <span>动态</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const headerTitle = document.querySelector('.chat-title');
+        const btnExit = document.getElementById('btn-exit');
+        const btnAddContact = document.getElementById('btn-add-contact');
+        const contactListContainer = document.getElementById('contact-list-container');
+
+        // 加载当前用户头像
+        const currentUser = JSON.parse(localStorage.getItem('fruit-machine-current-user')) || {};
+        const avatarImg = document.querySelector('#current-user-avatar img');
+        if (currentUser.avatar) {
+             avatarImg.src = currentUser.avatar;
+        } else {
+             // 默认头像
+             avatarImg.src = 'https://via.placeholder.com/40';
+        }
+
+        // 加载联系人列表 (联系人 Tab)
+        function loadContacts() {
+            const contacts = JSON.parse(localStorage.getItem('fruit-machine-contacts')) || [];
+            contactListContainer.innerHTML = '';
+            
+            if (contacts.length === 0) {
+                contactListContainer.innerHTML = '<div style="text-align:center;color:#999;margin-top:20px;">暂无联系人<br>点击右上角 + 添加</div>';
+                return;
+            }
+
+            // 分组
+            const roles = contacts.filter(c => !c.group || c.group === 'role');
+            const others = contacts.filter(c => c.group === 'other');
+
+            // 渲染角色分组
+            if (roles.length > 0) {
+                const title = document.createElement('div');
+                title.className = 'contact-group-title';
+                title.textContent = '角色';
+                contactListContainer.appendChild(title);
+
+                roles.forEach(c => renderContactItem(c));
+            }
+
+            // 渲染其他分组
+            if (others.length > 0) {
+                const title = document.createElement('div');
+                title.className = 'contact-group-title';
+                title.textContent = '其他';
+                contactListContainer.appendChild(title);
+
+                others.forEach(c => renderContactItem(c));
+            }
+        }
+
+        function renderContactItem(contact) {
+            const el = document.createElement('div');
+            el.className = 'contact-item';
+            el.onclick = () => {
+                // 联系人界面点击 -> 进入编辑页面
+                window.location.href = `contact_edit.html?id=${contact.id}`;
+            };
+            
+            const avatarSrc = contact.avatar || 'https://via.placeholder.com/50';
+            
+            el.innerHTML = `
+                <div class="contact-avatar">
+                    <img src="${avatarSrc}">
+                </div>
+                <div class="contact-info">
+                    <div class="contact-name">${contact.name}</div>
+                    <div class="contact-remark">${contact.remark || ''}</div>
+                </div>
+            `;
+            contactListContainer.appendChild(el);
+        }
+
+        // 加载消息列表 (消息 Tab)
+        function loadMessages() {
+            const messageListContainer = document.querySelector('.message-list');
+            // 保留系统通知，清空其他
+            messageListContainer.innerHTML = `
+                <div class="message-item">
+                    <div class="msg-avatar"></div>
+                    <div class="msg-info">
+                        <div class="msg-name">系统通知</div>
+                        <div class="msg-preview">欢迎来到莓莓聊天！</div>
+                    </div>
+                </div>
+            `;
+
+            const contacts = JSON.parse(localStorage.getItem('fruit-machine-contacts')) || [];
+            // 只显示已添加到消息列表的联系人
+            const activeChats = contacts.filter(c => c.inChatList === true);
+
+            activeChats.forEach(contact => {
+                const el = document.createElement('div');
+                el.className = 'message-item'; // 使用相同的样式
+                el.onclick = () => {
+                    // 消息界面点击 -> 进入聊天
+                    window.location.href = `chat_window.html?id=${contact.id}`;
+                };
+
+                const avatarSrc = contact.avatar || 'https://via.placeholder.com/45';
+                
+                // 获取最后一条消息预览 (可选优化)
+                // const chatData = JSON.parse(localStorage.getItem(`fruit-machine-chat-${contact.id}`)) || {};
+                // const lastMsg = chatData.history && chatData.history.length > 0 ? chatData.history[chatData.history.length-1].content : '';
+
+                el.innerHTML = `
+                    <div class="msg-avatar">
+                        <img src="${avatarSrc}">
+                    </div>
+                    <div class="msg-info">
+                        <div class="msg-name">${contact.name}</div>
+                        <div class="msg-preview">${contact.remark || '点击开始聊天'}</div>
+                    </div>
+                `;
+                messageListContainer.appendChild(el);
+            });
+        }
+
+        // 标签切换逻辑
+        document.querySelectorAll('.chat-tab-item').forEach(item => {
+            item.addEventListener('click', () => {
+                // 移除所有激活状态
+                document.querySelectorAll('.chat-tab-item').forEach(tab => tab.classList.remove('active'));
+                document.querySelectorAll('.chat-content-area').forEach(content => content.classList.add('hidden'));
+
+                // 激活当前
+                item.classList.add('active');
+                const targetId = `tab-content-${item.dataset.target}`;
+                const targetArea = document.getElementById(targetId);
+                targetArea.classList.remove('hidden');
+                
+                // 更新标题和顶部按钮
+                const target = item.dataset.target;
+                const titles = {
+                    'messages': '消息',
+                    'channels': '频道',
+                    'contacts': '联系人',
+                    'moments': '动态'
+                };
+                headerTitle.textContent = titles[target];
+
+                if (target === 'contacts') {
+                    btnExit.classList.add('hidden');
+                    btnAddContact.classList.remove('hidden');
+                    loadContacts(); 
+                } else if (target === 'messages') {
+                    btnExit.classList.remove('hidden');
+                    btnAddContact.classList.add('hidden');
+                    loadMessages();
+                } else {
+                    btnExit.classList.remove('hidden');
+                    btnAddContact.classList.add('hidden');
+                }
+            });
+        });
+
+        // 初始化
+        loadMessages(); // 默认加载消息列表
+        
+    </script>
+</body>
+</html>

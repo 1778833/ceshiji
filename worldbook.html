@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>世界书 - 水果机</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* 世界书专属样式 */
+        .worldbook-page {
+            padding: 20px;
+            color: var(--font-color);
+            overflow-y: auto;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .wb-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .wb-category-list {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .wb-category {
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 12px;
+            padding: 15px;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .wb-category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        .wb-category-title {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .wb-entries {
+            display: none; /* 默认折叠 */
+            flex-direction: column;
+            gap: 10px;
+            padding-left: 10px;
+            border-left: 2px solid rgba(0,0,0,0.1);
+        }
+
+        .wb-category.expanded .wb-entries {
+            display: flex;
+        }
+
+        .wb-entry {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .wb-tag {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 5px;
+            color: white;
+        }
+        .tag-global { background-color: #28a745; }
+        .tag-role { background-color: #007bff; }
+        .tag-pos-top { background-color: #dc3545; }
+        .tag-pos-pre { background-color: #ffc107; color: black; }
+        .tag-pos-post { background-color: #17a2b8; }
+
+        /* 编辑弹窗 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal.active { display: flex; }
+        
+        .modal-content {
+            background: white;
+            width: 90%;
+            max-width: 350px;
+            border-radius: 15px;
+            padding: 20px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+        .form-group textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .role-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 5px;
+            border: 1px solid #eee;
+            padding: 5px;
+            border-radius: 8px;
+            min-height: 40px;
+        }
+        .role-chip {
+            background: #e9ecef;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .role-chip.selected {
+            background: #007bff;
+            color: white;
+        }
+
+    </style>
+</head>
+<body data-theme="strawberry">
+
+    <div id="phone-case">
+        <div id="screen">
+            <div class="worldbook-page">
+                <div class="settings-header">
+                    <a href="index.html" class="back-button">‹</a>
+                    <h1>世界书</h1>
+                </div>
+
+                <div class="wb-actions">
+                    <button class="settings-button" id="add-category-btn">新建分类</button>
+                    <button class="settings-button" id="add-entry-btn">新建词条</button>
+                </div>
+
+                <div id="category-list" class="wb-category-list">
+                    <!-- 动态生成 -->
+                    <div class="wb-category" data-id="0">
+                        <div class="wb-category-header">
+                            <span class="wb-category-title">未分类</span>
+                            <span class="entry-count">0</span>
+                        </div>
+                        <div class="wb-entries"></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑词条弹窗 -->
+    <div id="entry-modal" class="modal">
+        <div class="modal-content">
+            <h2 id="modal-title">编辑词条</h2>
+            
+            <div class="form-group">
+                <label>名称</label>
+                <input type="text" id="entry-name" placeholder="词条名称">
+            </div>
+
+            <div class="form-group">
+                <label>内容</label>
+                <textarea id="entry-content" placeholder="输入世界书内容..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>分类</label>
+                <select id="entry-category">
+                    <option value="0">未分类</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>插入位置</label>
+                <select id="entry-position">
+                    <option value="top">提示词最顶端 (Top)</option>
+                    <option value="pre-persona">人设之前 (Before Persona)</option>
+                    <option value="post-persona">人设之后 (After Persona)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>生效范围</label>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="entry-global" checked>
+                    <label for="entry-global" style="margin:0; font-weight:normal;">全局生效</label>
+                </div>
+            </div>
+
+            <div class="form-group" id="role-select-group" style="display:none;">
+                <label>绑定角色 (点击选择)</label>
+                <div class="role-selector" id="role-list">
+                    <!-- 动态生成角色列表 -->
+                    <div class="role-chip" data-role="default">默认角色</div>
+                    <!-- 预留给未来角色系统 -->
+                </div>
+                <input type="text" id="new-role-input" placeholder="+ 添加临时角色名" style="margin-top:5px; font-size:12px;">
+            </div>
+
+            <div class="button-group">
+                <button class="settings-button" id="save-entry-btn">保存</button>
+                <button class="settings-button" id="delete-entry-btn" style="background-color: #dc3545; display:none;">删除</button>
+                <button class="settings-button" id="cancel-entry-btn" style="background-color: #6c757d;">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑分类弹窗 -->
+    <div id="category-modal" class="modal">
+        <div class="modal-content">
+            <h2>编辑分类</h2>
+            <div class="form-group">
+                <label>分类名称</label>
+                <input type="text" id="category-name" placeholder="分类名称">
+            </div>
+            
+            <div class="form-group">
+                <label>默认生效范围 (分类下新词条默认继承)</label>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="category-global" checked>
+                    <label for="category-global" style="margin:0; font-weight:normal;">全局生效</label>
+                </div>
+            </div>
+
+            <div class="form-group" id="cat-role-select-group" style="display:none;">
+                <label>绑定角色 (默认)</label>
+                <div class="role-selector" id="cat-role-list">
+                    <!-- 动态生成 -->
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="settings-button" id="save-category-btn">保存</button>
+                <button class="settings-button" id="delete-category-btn" style="background-color: #dc3545; display:none;">删除</button>
+                <button class="settings-button" id="cancel-category-btn" style="background-color: #6c757d;">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/regex-engine.js"></script>
+    <script src="js/worldbook.js"></script>
+</body>
+</html>
