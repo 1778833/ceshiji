@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>水果机</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-theme="strawberry" class="feshuiguo">
+
+    <!-- =========== 主容器 =========== -->
+    <div id="phone-case">
+        <div id="screen">
+            
+            <!-- =========== 顶部状态栏 =========== -->
+            <div id="status-bar">
+                <!-- 编辑模式取消按钮 -->
+                <button id="cancel-layout-btn" style="display: none;">✖</button>
+                <span id="date-display">2026/01/01</span>
+                <span id="time-display">00:00:00</span>
+                <!-- 编辑模式保存按钮 -->
+                <button id="save-layout-btn" style="display: none;">✔</button>
+            </div>
+
+            <!-- =========== 照片墙区域 =========== -->
+            <div id="photo-wall">
+                <div class="photo-slot" id="photo-slot-0"><img src="" alt="photo-1"></div>
+                <div class="photo-slot" id="photo-slot-1"><img src="" alt="photo-2"></div>
+                <div class="photo-slot" id="photo-slot-2"><img src="" alt="photo-3"></div>
+                <div class="photo-slot" id="photo-slot-3"><img src="" alt="photo-4"></div>
+            </div>
+            <!-- =========== 照片墙区域 END =========== -->
+
+            <!-- =========== 主内容区域 =========== -->
+            <div id="main-content">
+                <!-- 左侧应用区 -->
+                <div class="left-apps">
+                    <div class="app-row">
+                        <div class="app-icon" id="app-chat">
+                            <div class="icon-image"></div>
+                            <span class="app-name">莓莓聊天</span>
+                        </div>
+                        <div class="app-icon" id="app-roles">
+                            <div class="icon-image"></div>
+                            <span class="app-name">来吃橘子</span>
+                        </div>
+                    </div>
+                    <div class="app-row">
+                        <div class="app-icon" id="app-social">
+                            <div class="icon-image"></div>
+                            <span class="app-name">西瓜甜</span>
+                        </div>
+                        <div class="app-icon" id="app-info">
+                            <div class="icon-image"></div>
+                            <span class="app-name">可口葡萄</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右侧小组件 -->
+                <div class="right-widget" id="right-widget">
+                    <img src="" alt="widget-photo">
+                </div>
+            </div>
+            <!-- =========== 主内容区域 END =========== -->
+
+            <!-- =========== 底部内容区域 =========== -->
+            <div id="bottom-content">
+                <!-- 左侧便签/日历组件 -->
+                <div class="bottom-left-widget" id="notepad-widget">
+                    <textarea id="notepad" placeholder="记录可爱日常..."></textarea>
+                </div>
+
+                <!-- 右侧应用 -->
+                <div class="bottom-right-apps">
+                     <div class="app-icon" id="app-music">
+                        <div class="icon-image"></div>
+                        <span class="app-name">来扒柚子</span>
+                    </div>
+                    <div class="app-icon" id="app-game">
+                        <div class="icon-image"></div>
+                        <span class="app-name">吃火龙果</span>
+                    </div>
+                </div>
+            </div>
+            <!-- =========== 底部内容区域 END =========== -->
+
+            <!-- =========== 底部导航栏 =========== -->
+            <div id="bottom-bar">
+                <a href="settings.html" class="bar-icon" id="bar-settings">
+                    <img src="" alt="设置">
+                    <span>设置</span>
+                </a>
+                <a href="beautify.html" class="bar-icon" id="bar-beautify">
+                    <img src="" alt="美化中心">
+                    <span>美化中心</span>
+                </a>
+                <a href="worldbook.html" class="bar-icon" id="bar-world-book">
+                    <img src="" alt="世界书">
+                    <span>世界书</span>
+                </a>
+                <a href="regex.html" class="bar-icon" id="bar-regex">
+                    <img src="" alt="正则">
+                    <span>正则</span>
+                </a>
+            </div>
+            <!-- =========== 底部导航栏 END =========== -->
+
+        </div>
+    </div>
+    <!-- =========== 主容器 END =========== -->
+
+    <script src="js/regex-engine.js"></script>
+    <script src="js/script.js"></script>
+</body>
+</html>
