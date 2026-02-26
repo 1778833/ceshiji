@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>水果机</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Dynamic styles for custom font/css -->
+    <style id="dynamic-font-style"></style>
+    <style id="dynamic-custom-styles"></style>
+</head>
+<body data-theme="strawberry" class="feshuiguo">
+
+    <div id="spa-root">
+        
+        <!-- ================= HOME PAGE ================= -->
+        <div id="page-home" class="spa-page active">
+            <div id="phone-case" class="phone-case">
+                <div id="screen" class="screen">
+                    
+                    <!-- =========== 顶部状态栏 =========== -->
+                    <div id="status-bar">
+                        <button id="cancel-layout-btn" style="display: none;">✖</button>
+                        <span id="date-display">2026/01/01</span>
+                        <span id="time-display">00:00:00</span>
+                        <button id="save-layout-btn" style="display: none;">✔</button>
+                    </div>
+
+                    <!-- =========== 照片墙区域 =========== -->
+                    <div id="photo-wall">
+                        <div class="photo-slot" id="photo-slot-0"><img src="" alt="photo-1"></div>
+                        <div class="photo-slot" id="photo-slot-1"><img src="" alt="photo-2"></div>
+                        <div class="photo-slot" id="photo-slot-2"><img src="" alt="photo-3"></div>
+                        <div class="photo-slot" id="photo-slot-3"><img src="" alt="photo-4"></div>
+                    </div>
+
+                    <!-- =========== 主内容区域 =========== -->
+                    <div id="main-content">
+                        <!-- 左侧应用区 -->
+                        <div class="left-apps">
+                            <div class="app-row">
+                                <div class="app-icon" id="app-chat">
+                                    <div class="icon-image"></div>
+                                    <span class="app-name">莓莓聊天</span>
+                                </div>
+                                <div class="app-icon" id="app-roles">
+                                    <div class="icon-image"></div>
+                                    <span class="app-name">来吃橘子</span>
+                                </div>
+                            </div>
+                            <div class="app-row">
+                                <div class="app-icon" id="app-social">
+                                    <div class="icon-image"></div>
+                                    <span class="app-name">西瓜甜</span>
+                                </div>
+                                <div class="app-icon" id="app-info">
+                                    <div class="icon-image"></div>
+                                    <span class="app-name">可口葡萄</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 右侧小组件 -->
+                        <div class="right-widget" id="right-widget">
+                            <img src="" alt="widget-photo">
+                        </div>
+                    </div>
+
+                    <!-- =========== 底部内容区域 =========== -->
+                    <div id="bottom-content">
+                        <!-- 左侧便签/日历组件 -->
+                        <div class="bottom-left-widget" id="notepad-widget">
+                            <textarea id="notepad" placeholder="记录可爱日常..."></textarea>
+                        </div>
+
+                        <!-- 右侧应用 -->
+                        <div class="bottom-right-apps">
+                             <div class="app-icon" id="app-music">
+                                <div class="icon-image"></div>
+                                <span class="app-name">来扒柚子</span>
+                            </div>
+                            <div class="app-icon" id="app-game">
+                                <div class="icon-image"></div>
+                                <span class="app-name">吃火龙果</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- =========== 底部导航栏 =========== -->
+                    <div id="bottom-bar">
+                        <div class="bar-icon" id="bar-settings">
+                            <img src="" alt="设置">
+                            <span>设置</span>
+                        </div>
+                        <div class="bar-icon" id="bar-beautify">
+                            <img src="" alt="美化中心">
+                            <span>美化中心</span>
+                        </div>
+                        <div class="bar-icon" id="bar-world-book">
+                            <img src="" alt="世界书">
+                            <span>世界书</span>
+                        </div>
+                        <div class="bar-icon" id="bar-regex">
+                            <img src="" alt="正则">
+                            <span>正则</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= SETTINGS PAGE ================= -->
+        <div id="page-settings" class="spa-page">
+            <div class="phone-case">
+                <div class="screen">
+                    <div class="settings-page">
+                        <div class="settings-header">
+                            <div class="back-button">‹</div>
+                            <h1>设置</h1>
+                        </div>
+
+                        <div class="settings-section">
+                            <h2>API 连接</h2>
+                            <p>连接到你的模型服务</p>
+                            <div class="settings-item">
+                                <label for="api-address">地址</label>
+                                <input type="text" id="api-address" placeholder="输入 API 地址">
+                            </div>
+                            <div class="settings-item">
+                                <label for="api-key">密钥</label>
+                                <input type="password" id="api-key" placeholder="输入 API 密钥">
+                            </div>
+                            <div class="settings-item">
+                                <button class="settings-button" id="get-models-btn" style="width: 100%; margin-top: 5px; background-color: #6c757d;">获取模型列表</button>
+                            </div>
+                             <div class="settings-item">
+                                <label for="api-model">选择模型</label>
+                                <select id="api-model">
+                                    <option value="">请先获取模型</option>
+                                </select>
+                            </div>
+                            <div class="settings-item">
+                                <label for="api-temperature">温度 (Temperature)</label>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <input type="range" id="api-temperature" min="0" max="2" step="0.1" value="1">
+                                    <span id="temperature-value">1.0</span>
+                                </div>
+                                <p style="font-size: 12px; color: #666; margin-top: 5px;">控制输出的随机性，推荐 1.0 平衡。</p>
+                            </div>
+
+                            <div class="settings-item" style="border-top: 1px solid #eee; padding-top: 15px; margin-top: 15px;">
+                                <label>API 预设管理</label>
+                                <div style="display: flex; gap: 5px; margin-bottom: 10px;">
+                                    <input type="text" id="preset-name" placeholder="预设名称">
+                                    <button class="settings-button" id="save-preset-btn" style="width: auto;">保存预设</button>
+                                </div>
+                                <select id="api-presets">
+                                    <option value="">-- 选择预设 --</option>
+                                </select>
+                                <button class="settings-button" id="load-preset-btn" style="margin-top: 5px; background-color: #28a745;">加载选中预设</button>
+                                <button class="settings-button" id="delete-preset-btn" style="margin-top: 5px; background-color: #dc3545;">删除选中预设</button>
+                            </div>
+
+                            <button class="settings-button" id="save-api-settings" style="margin-top: 20px;">保存当前配置</button>
+                        </div>
+
+                        <div class="settings-section">
+                            <h2>备份与恢复</h2>
+                            <p>导出或导入你的所有应用数据和设置。</p>
+                            <div class="button-group">
+                                <button class="settings-button" id="export-data">导出存档</button>
+                                <button class="settings-button" id="import-data">导入存档</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= BEAUTIFY PAGE ================= -->
+        <div id="page-beautify" class="spa-page">
+            <div class="phone-case">
+                <div class="screen">
+                    <div class="beautify-page">
+                        <div class="settings-header">
+                            <div class="back-button">‹</div>
+                            <h1>美化中心</h1>
+                        </div>
+
+                        <div class="settings-section">
+                            <h2>主界面背景</h2>
+                            <p>点击下方按钮上传你喜欢的背景图片。</p>
+                            <div class="button-group">
+                                <button class="settings-button" id="upload-bg-btn">上传背景图片</button>
+                                <button class="settings-button" id="reset-bg-btn" style="background-color: #999;">恢复默认背景</button>
+                            </div>
+                        </div>
+
+                        <div class="icon-customization">
+                            <h2>主界面图标</h2>
+                            <p style="margin-bottom: 10px; font-size: 12px; color: #666;">
+                                在这里可以修改图标样式和大小。如果想重置主界面的自由布局，请点击下方按钮。
+                            </p>
+                            <div class="button-group" style="margin-bottom: 20px;">
+                                <button class="settings-button" id="reset-layout-btn" style="background-color: #ff9500;">恢复默认布局</button>
+                            </div>
+                             <div class="icon-grid">
+                                <!-- JS会动态生成这里的图标设置 -->
+                            </div>
+                        </div>
+
+                        <div class="settings-section">
+                            <h2>全局字体设置</h2>
+                            <p>设置整个应用的字体。</p>
+                            <div class="settings-item">
+                                <label for="font-url">字体链接 (URL)</label>
+                                <input type="text" id="font-url" placeholder="输入字体文件 URL (woff2, ttf, etc.)">
+                                <p style="font-size: 12px; color: #666; margin-top: 5px;">支持 .woff2, .ttf, .otf 等格式。</p>
+                            </div>
+                             <div class="button-group">
+                                <button class="settings-button" id="apply-font-btn">应用字体</button>
+                                <button class="settings-button" id="reset-font-btn" style="background-color: #999;">恢复默认字体</button>
+                            </div>
+                        </div>
+
+                        <div class="css-customization">
+                            <h2>自定义样式 (CSS)</h2>
+                            <p>主容器已添加类名 <code>.feshuiguo</code>，你可以基于此进行深度定制。</p>
+                            <div class="button-group" style="margin-bottom: 10px;">
+                                <button class="settings-button" id="get-css-template" style="background-color: #6c757d; font-size: 14px; padding: 8px;">获取完整 CSS 模板 </button>
+                            </div>
+                            <textarea id="custom-css" placeholder="/* 在这里输入你的 CSS 代码 */"></textarea>
+                            <button class="settings-button" id="save-css">应用并保存样式</button>
+                        </div>
+
+                        <div class="settings-section">
+                            <h2>美化预设管理</h2>
+                            <p>保存当前整体美化（背景、图标、CSS、字体）为预设。</p>
+                            <div class="settings-item">
+                                <input type="text" id="beautify-preset-name" placeholder="预设名称">
+                            </div>
+                            <div class="button-group" style="margin-top: 10px;">
+                                <button class="settings-button" id="save-beautify-preset">保存为新预设</button>
+                            </div>
+                            <div style="margin-top: 15px;">
+                                <label>加载预设</label>
+                                <select id="beautify-presets-select">
+                                    <option value="">-- 选择预设 --</option>
+                                </select>
+                                <div class="button-group" style="margin-top: 10px;">
+                                    <button class="settings-button" id="load-beautify-preset" style="background-color: #28a745;">加载</button>
+                                    <button class="settings-button" id="delete-beautify-preset" style="background-color: #dc3545;">删除</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="settings-section">
+                            <h2>全局配置备份</h2>
+                            <p>导出包含图标、图片、便签、样式和预设的完整备份。</p>
+                            <div class="button-group">
+                                <button class="settings-button" id="export-config">导出全局配置</button>
+                                <button class="settings-button" id="import-config">导入全局配置</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= WORLDBOOK PAGE ================= -->
+        <div id="page-world-book" class="spa-page">
+            <div class="phone-case">
+                <div class="screen">
+                    <div class="worldbook-page">
+                        <div class="settings-header">
+                            <div class="back-button">‹</div>
+                            <h1>世界书</h1>
+                        </div>
+
+                        <div class="wb-actions">
+                            <button class="settings-button" id="add-category-btn">新建分类</button>
+                            <button class="settings-button" id="add-entry-btn">新建词条</button>
+                        </div>
+
+                        <div id="category-list" class="wb-category-list">
+                            <div class="wb-category" data-id="0">
+                                <div class="wb-category-header">
+                                    <span class="wb-category-title">未分类</span>
+                                    <span class="entry-count">0</span>
+                                </div>
+                                <div class="wb-entries"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Modals -->
+            <div id="entry-modal" class="modal">
+                <div class="modal-content">
+                    <h2 id="modal-title">编辑词条</h2>
+                    
+                    <div class="form-group">
+                        <label>名称</label>
+                        <input type="text" id="entry-name" placeholder="词条名称">
+                    </div>
+
+                    <div class="form-group">
+                        <label>内容</label>
+                        <textarea id="entry-content" placeholder="输入世界书内容..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>分类</label>
+                        <select id="entry-category">
+                            <option value="0">未分类</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>插入位置</label>
+                        <select id="entry-position">
+                            <option value="top">提示词最顶端 (Top)</option>
+                            <option value="pre-persona">人设之前 (Before Persona)</option>
+                            <option value="post-persona">人设之后 (After Persona)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>生效范围</label>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="entry-global" checked>
+                            <label for="entry-global" style="margin:0; font-weight:normal;">全局生效</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="role-select-group" style="display:none;">
+                        <label>绑定角色 (点击选择)</label>
+                        <div class="role-selector" id="role-list">
+                            <div class="role-chip" data-role="default">默认角色</div>
+                        </div>
+                        <input type="text" id="new-role-input" placeholder="+ 添加临时角色名" style="margin-top:5px; font-size:12px;">
+                    </div>
+
+                    <div class="button-group">
+                        <button class="settings-button" id="save-entry-btn">保存</button>
+                        <button class="settings-button" id="delete-entry-btn" style="background-color: #dc3545; display:none;">删除</button>
+                        <button class="settings-button" id="cancel-entry-btn" style="background-color: #6c757d;">取消</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="category-modal" class="modal">
+                <div class="modal-content">
+                    <h2>编辑分类</h2>
+                    <div class="form-group">
+                        <label>分类名称</label>
+                        <input type="text" id="category-name" placeholder="分类名称">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>默认生效范围 (分类下新词条默认继承)</label>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="category-global" checked>
+                            <label for="category-global" style="margin:0; font-weight:normal;">全局生效</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="cat-role-select-group" style="display:none;">
+                        <label>绑定角色 (默认)</label>
+                        <div class="role-selector" id="cat-role-list">
+                        </div>
+                    </div>
+
+                    <div class="button-group">
+                        <button class="settings-button" id="save-category-btn">保存</button>
+                        <button class="settings-button" id="delete-category-btn" style="background-color: #dc3545; display:none;">删除</button>
+                        <button class="settings-button" id="cancel-category-btn" style="background-color: #6c757d;">取消</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= REGEX PAGE ================= -->
+        <div id="page-regex" class="spa-page">
+            <div class="phone-case">
+                <div class="screen">
+                    <div class="regex-page">
+                        <div class="settings-header">
+                            <div class="back-button">‹</div>
+                            <h1>正则替换</h1>
+                        </div>
+
+                        <div class="rx-actions">
+                            <button class="settings-button" id="add-regex-btn">新建规则</button>
+                            <button class="settings-button" id="clear-all-btn" style="background-color: #dc3545;">清空所有</button>
+                        </div>
+
+                        <div id="regex-list" class="rx-list"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="regex-modal" class="modal">
+                <div class="modal-content">
+                    <h2 id="modal-title">编辑正则规则</h2>
+                    
+                    <div class="form-group">
+                        <label>规则名称 (方便记忆)</label>
+                        <input type="text" id="rx-name" placeholder="例如：去除非法字符">
+                    </div>
+
+                    <div class="form-group">
+                        <label>正则表达式 (Pattern)</label>
+                        <input type="text" id="rx-pattern" placeholder="输入正则内容，无需首尾斜杠">
+                        <small style="color:#d63384; font-size:10px;"></small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>替换文本 (Replacement)</label>
+                        <textarea id="rx-replacement" placeholder="替换后的内容" style="height: 60px;"></textarea>
+                        <small style="color:#666; font-size:10px;">支持 \n 换行</small>
+                    </div>
+
+                    <div class="button-group">
+                        <button class="settings-button" id="save-regex-btn">保存</button>
+                        <button class="settings-button" id="delete-regex-btn" style="background-color: #dc3545; display:none;">删除</button>
+                        <button class="settings-button" id="cancel-regex-btn" style="background-color: #6c757d;">取消</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= CHAT PAGE ================= -->
+        <div id="page-chat" class="spa-page">
+            <div class="phone-case">
+                <div class="screen">
+                    
+                    <div class="chat-header">
+                        <div class="user-avatar-container" id="current-user-avatar">
+                            <img src="https://via.placeholder.com/40" alt="User">
+                        </div>
+                        
+                        <div class="chat-title">消息</div>
+                        
+                        <div class="header-actions" id="header-actions">
+                             <div class="header-btn" id="btn-exit">✖</div>
+                             <div class="header-btn hidden" id="btn-add-contact" style="color: #ff8787; font-weight: bold;">+</div>
+                        </div>
+                    </div>
+
+                    <div class="chat-content-area" id="tab-content-messages">
+                        <div class="message-list">
+                            <div class="message-item">
+                                <div class="msg-avatar"></div>
+                                <div class="msg-info">
+                                    <div class="msg-name">系统通知</div>
+                                    <div class="msg-preview">欢迎来到莓莓聊天！</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chat-content-area hidden" id="tab-content-channels">
+                        <div style="text-align: center; color: #999; margin-top: 50px;">
+                            频道功能开发中...
+                        </div>
+                    </div>
+
+                    <div class="chat-content-area hidden" id="tab-content-contacts">
+                        <div class="contact-list" id="contact-list-container"></div>
+                    </div>
+
+                    <div class="chat-content-area hidden" id="tab-content-moments">
+                        <div style="text-align: center; color: #999; margin-top: 50px;">
+                            动态功能开发中...
+                        </div>
+                    </div>
+
+                    <div class="chat-tabs">
+                        <div class="chat-tab-item active" data-target="messages">
+                            <div class="chat-tab-icon" style="background: #ffb7b2;"></div>
+                            <span>消息</span>
+                        </div>
+                        <div class="chat-tab-item" data-target="channels">
+                            <div class="chat-tab-icon"></div>
+                            <span>频道</span>
+                        </div>
+                        <div class="chat-tab-item" data-target="contacts">
+                            <div class="chat-tab-icon"></div>
+                            <span>联系人</span>
+                        </div>
+                        <div class="chat-tab-item" data-target="moments">
+                            <div class="chat-tab-icon"></div>
+                            <span>动态</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= CHAT WINDOW PAGE ================= -->
+        <div id="page-chat-window" class="spa-page">
+            <div id="chat-container">
+                <div class="chat-header">
+                    <div class="header-btn">‹</div>
+                    <div class="chat-title" id="chat-title">聊天中...</div>
+                    <div class="header-btn" id="btn-settings">⚙️</div>
+                </div>
+
+                <div id="msg-area"></div>
+
+                <div class="input-wrapper" id="input-bar">
+                    <div id="quote-bar">
+                        <span id="quote-text"></span>
+                        <span style="font-weight:bold; cursor:pointer;">✖</span>
+                    </div>
+                    <div class="input-area">
+                        <div class="icon-btn strawberry-btn" id="btn-strawberry" title="触发AI">🍓</div>
+                        <textarea id="input-box" rows="1" placeholder="说点什么..."></textarea>
+                        <div class="icon-btn" id="btn-plus">＋</div>
+                        <button class="send-btn" id="btn-send">发送</button>
+                    </div>
+                </div>
+                
+                <div id="delete-bar">
+                    <span id="select-count" style="color:#555; font-size:14px;">已选 0 条</span>
+                    <div style="display:flex; gap:10px;">
+                        <button class="send-btn" style="background:#ccc; color:#333;" id="btn-cancel-del">取消</button>
+                        <button class="send-btn" style="background:#ff4d4f;" id="btn-confirm-del">删除</button>
+                    </div>
+                </div>
+                
+                <div id="plus-menu">
+                    <div class="menu-item" id="menu-summary">📝 对话总结</div>
+                    <div class="menu-item" id="menu-regenerate">🔄 重回 (Regenerate)</div>
+                </div>
+                
+                <div id="context-menu">
+                    <div class="ctx-item" id="ctx-quote">❝ 引用</div>
+                    <div class="ctx-item" id="ctx-edit">✎ 编辑</div>
+                    <div class="ctx-item" id="ctx-del" style="color:#ff4d4f;">🗑 删除</div>
+                </div>
+            </div>
+
+            <div id="modal-settings" class="modal">
+                <div class="modal-content">
+                    <h3>聊天设置 <span class="close-btn">×</span></h3>
+                    
+                    <div class="setting-item">
+                        <label>聊天背景</label>
+                        <button onclick="document.getElementById('cfg-bg-input').click()" style="width:100%;padding:8px;border:1px dashed #ccc;border-radius:8px;">选择图片</button>
+                        <input type="file" id="cfg-bg-input" accept="image/*" style="display:none;">
+                        <img id="bg-preview" class="bg-preview">
+                        <button id="btn-clear-bg" style="width:100%;margin-top:5px;display:none;">清除背景</button>
+                    </div>
+                    
+                    <div class="setting-item"><label>气泡 CSS (User)</label><textarea id="cfg-css-user"></textarea></div>
+                    <div class="setting-item"><label>气泡 CSS (AI)</label><textarea id="cfg-css-ai"></textarea></div>
+                    <div class="setting-item">
+                        <label>AI 回复条数范围</label>
+                        <div class="range-input">
+                            <input type="number" id="cfg-reply-min" min="1" max="15" value="1"> 至 <input type="number" id="cfg-reply-max" min="1" max="15" value="1">
+                        </div>
+                    </div>
+                    <div class="setting-item"><label><input type="checkbox" id="cfg-sense-time"> 感知现实时间</label></div>
+                    <div class="setting-item"><label>上下文记忆条数</label><input type="number" id="cfg-context-limit" value="20"></div>
+                    <div class="setting-item"><label>挂载消息条数 (防卡顿)</label><input type="number" id="cfg-mount-limit" min="20" max="100" value="50"></div>
+
+                    <div style="border-top: 1px dashed #ccc; padding-top: 10px; margin-top: 10px;">
+                        <button class="send-btn" style="width:100%; background: #6c757d;" id="btn-view-debug">🔍 查看思维链 & 消耗</button>
+                    </div>
+                    <div id="debug-view" style="display:none; margin-top:10px; font-size:12px; color:#333; background:#f8f9fa; padding:10px; border-radius:8px; max-height:200px; overflow-y:auto;">
+                        <div id="token-stats" style="margin-bottom:10px; font-family:monospace;"></div>
+                        <div style="font-weight:bold;">提示词构建 (System Prompt):</div>
+                        <div id="prompt-preview" style="white-space: pre-wrap; word-break: break-all; opacity:0.8;"></div>
+                    </div>
+
+                    <button class="send-btn" style="width:100%; margin-top: 15px;" id="btn-save-cfg">保存设置</button>
+                </div>
+            </div>
+
+            <div id="modal-summary" class="modal">
+                <div class="modal-content">
+                    <h3>对话总结 <span class="close-btn">×</span></h3>
+                    <div class="setting-item"><label>自动触发条数 (0关闭)</label><input type="number" id="cfg-summary-trigger" value="50"></div>
+                    <div class="setting-item"><label>提示词</label><textarea id="cfg-summary-prompt">请简要总结上述对话的关键信息。</textarea></div>
+                    <button class="send-btn" style="width:100%; margin-bottom:15px;" id="btn-do-summary">生成新总结</button>
+                    <div id="summary-list" style="max-height:200px; overflow-y:auto;"></div>
+                </div>
+            </div>
+
+            <div id="modal-thought" class="modal" style="justify-content: center; align-items: center;">
+                <div class="modal-content thought-modal-content theme-cat">
+                    <div class="thought-top-bar">
+                        <span class="kaomoji-btn" id="thought-style-prev">(=^･ω･^=)</span>
+                        <div class="thought-header-center">
+                            <span class="thought-title">看看TA在想什么</span>
+                            <span class="thought-style-name" id="thought-style-display">萌萌小猫</span>
+                        </div>
+                        <span class="kaomoji-btn" id="thought-style-next">(*≧ω≦)</span>
+                    </div>
+                    
+                    <div class="thought-separator"></div>
+                    
+                    <div class="thought-display-area" id="thought-current">
+                        <!-- Current thought content -->
+                    </div>
+                    
+                    <div class="thought-history-toggle" id="thought-history-toggle">
+                        <span>查看过往心声</span> <span class="arrow">▼</span>
+                    </div>
+                    
+                    <div class="thought-history-list" id="thought-history-list" style="display:none;">
+                        <!-- History items -->
+                    </div>
+                    
+                    <div class="close-btn-round" onclick="document.getElementById('modal-thought').style.display='none'">×</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= USER SETTINGS PAGE ================= -->
+        <div id="page-user-settings" class="spa-page">
+            <div class="phone-case">
+                <div class="screen">
+                    <div class="settings-page">
+                        <div class="settings-header">
+                            <div class="back-button">‹</div>
+                            <h1>用户设定</h1>
+                        </div>
+                        
+                        <div id="debug-info"></div>
+
+                        <div class="settings-section">
+                            <p>管理你的不同身份预设。</p>
+                            <button class="add-preset-btn" id="btn-add-preset">+ 新建用户预设</button>
+                            <div class="preset-list" id="preset-list-container"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="edit-modal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 id="modal-title">编辑预设</h2>
+                        <button id="close-modal-btn" style="border:none;background:none;font-size:20px;">✖</button>
+                    </div>
+                    
+                    <form id="preset-form">
+                        <input type="hidden" id="edit-preset-id">
+
+                        <div style="display: flex; justify-content: center; margin-bottom: 20px;">
+                            <div class="avatar-upload-container" id="avatar-container" style="position: relative; width: 80px; height: 80px; border-radius: 50%; background: #eee; overflow: hidden; cursor: pointer; border: 2px dashed #ccc;">
+                                <img id="preset-avatar-preview" src="" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                                <div id="avatar-placeholder" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; flex-direction: column; color: #999; font-size: 10px;">
+                                    <span style="font-size: 20px;">📷</span>
+                                    <span>换头像</span>
+                                </div>
+                            </div>
+                            <input type="file" id="avatar-input" accept="image/*" style="display: none;">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>预设名称 (仅用于区分)</label>
+                            <input type="text" id="preset-name" required placeholder="例如：我的主设定">
+                        </div>
+
+                        <div class="form-group">
+                            <label>姓名</label>
+                            <input type="text" id="user-name" required>
+                        </div>
+
+                        <div style="display: flex; gap: 10px;">
+                            <div class="form-group" style="flex:1">
+                                <label>性别</label>
+                                <select id="user-gender">
+                                    <option value="女">女</option><option value="男">男</option><option value="保密">保密</option><option value="其他">其他</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="flex:1">
+                                <label>年龄</label>
+                                <input type="text" id="user-age">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>生日</label>
+                            <input type="date" id="user-birthday">
+                        </div>
+
+                        <div class="form-group">
+                            <label>主要设定</label>
+                            <textarea id="user-description" placeholder="详细描述..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>所居世界 (世界观背景)</label>
+                            <textarea id="user-world" placeholder="此预设的世界观..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>人际关系</label>
+                            <div class="relationship-list" id="relationship-list"></div>
+                            <button type="button" class="settings-button" id="btn-add-rel" style="margin-top:5px; font-size:12px; padding:8px;">+ 手动添加关系</button>
+                        </div>
+
+                        <div class="ai-gen-section">
+                            <label style="font-weight:bold; font-size:13px; margin-bottom:5px; display:block;">AI 生成人际关系</label>
+                            <textarea id="ai-gen-prompt" placeholder="描述关系要求..." style="height:60px; font-size:12px; margin-bottom:5px;"></textarea>
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <select id="ai-gen-count" style="width: 80px;">
+                                    <option value="1">1人</option><option value="2">2人</option><option value="3">3人</option>
+                                </select>
+                                <button type="button" class="ai-gen-btn" id="btn-ai-gen">✨ AI 生成</button>
+                            </div>
+                            <div id="ai-loading" style="display:none; color:#666; font-size:12px; margin-top:5px;">正在生成中...</div>
+                        </div>
+
+                        <div style="margin-top: 20px; display: flex; gap: 10px;">
+                            <button type="submit" class="settings-button">保存</button>
+                            <button type="button" class="settings-button" id="btn-cancel" style="background-color: #ccc;">取消</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= CONTACT EDIT PAGE ================= -->
+        <div id="page-contact-edit" class="spa-page">
+            <div class="phone-case">
+                <div class="screen">
+                    <div class="settings-page">
+                        <div class="settings-header">
+                            <div class="back-button">‹</div>
+                            <h1>编辑联系人</h1>
+                        </div>
+                        
+                        <div id="debug-info"></div>
+
+                        <form id="contact-form">
+                            <input type="hidden" id="contact-id">
+                            
+                            <div style="display: flex; justify-content: center; margin-bottom: 20px;">
+                                <div class="avatar-upload-container" id="avatar-container" style="position: relative; width: 100px; height: 100px; border-radius: 50%; background: #eee; overflow: hidden; cursor: pointer; border: 3px solid #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                                    <img id="contact-avatar-preview" src="" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                                    <div id="avatar-placeholder" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; flex-direction: column; color: #999; font-size: 10px;">
+                                        <span style="font-size: 24px;">👤</span>
+                                        <span>上传头像</span>
+                                    </div>
+                                </div>
+                                <input type="file" id="avatar-input" accept="image/*" style="display: none;">
+                            </div>
+
+                            <div class="form-group">
+                                <label>真实姓名</label>
+                                <input type="text" id="contact-name" required placeholder="例如：李华">
+                            </div>
+
+                            <div class="form-group">
+                                <label>备注</label>
+                                <input type="text" id="contact-remark" placeholder="例如：班长">
+                            </div>
+
+                            <div class="form-group">
+                                <label>人设</label>
+                                <textarea id="contact-persona" placeholder="详细设定..." style="height: 100px;"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label>关联用户预设</label>
+                                <select id="user-preset-select">
+                                    <option value="">-- 全局通用 --</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>关联世界书</label>
+                                <div class="wb-select-container" id="wb-list-container">
+                                    <div style="text-align:center; color:#999; padding:20px;">加载中...</div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>人际关系</label>
+                                <div class="relationship-list" id="relationship-list"></div>
+                                <button type="button" class="settings-button" id="btn-add-rel" style="margin-top:5px; font-size:12px; padding:8px; background:#f0f0f0; color:#333;">+ 手动添加关系</button>
+                            </div>
+
+                            <div class="ai-gen-section">
+                                <label style="font-weight:bold; font-size:13px; margin-bottom:5px; display:block;">AI 生成人际关系</label>
+                                <textarea id="ai-gen-prompt" placeholder="描述关系要求..." style="height:60px; font-size:12px; margin-bottom:5px;"></textarea>
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <select id="ai-gen-count" style="width: 80px;">
+                                        <option value="1">1人</option><option value="2">2人</option><option value="3">3人</option>
+                                    </select>
+                                    <button type="button" class="ai-gen-btn" id="btn-ai-gen">✨ AI 生成</button>
+                                </div>
+                                <div id="ai-loading" style="display:none; color:#666; font-size:12px; margin-top:5px;">正在生成中...</div>
+                            </div>
+
+                            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                                <button type="submit" class="floating-save-btn" style="position:static; flex:1; transform:none;">保存联系人</button>
+                                <button type="button" id="btn-add-to-chat" class="floating-save-btn" style="position:static; flex:1; transform:none; background:#4caf50;">添加到消息列表</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/jszip.min.js"></script>
+    <script src="js/regex-engine.js?v=3"></script>
+    <script src="js/script.js?v=3"></script>
+    <script src="js/settings.js?v=3"></script>
+    <script src="js/beautify.js?v=3"></script>
+    <script src="js/worldbook.js?v=3"></script>
+    <script src="js/regex.js?v=3"></script>
+    
+    <!-- New Page Scripts -->
+    <script src="js/page-chat.js?v=3"></script>
+    <script src="js/page-chat-window.js?v=3"></script>
+    <script src="js/page-user-settings.js?v=3"></script>
+    <script src="js/page-contact-edit.js?v=3"></script>
+</body>
+</html>
